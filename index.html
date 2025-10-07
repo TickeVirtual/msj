@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Enviar mensaje</title>
+<style>
+body {
+  font-family: Arial;
+  text-align: center;
+  background: #f7f7f7;
+  color: #333;
+  padding: 30px;
+}
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+  <h3>Enviando mensaje de WhatsApp...</h3>
+  <div class="loader"></div>
+  <p id="status">Por favor espere.</p>
+
+<script>
+(async () => {
+  // 1️⃣ Capturar parámetros
+  const params = new URLSearchParams(window.location.search);
+  const telefono = params.get('telefono') || '';
+  const nombre = params.get('nombre') || 'Cliente';
+
+  if (!telefono) {
+    document.getElementById('status').textContent = 'Falta número de teléfono.';
+    return;
+  }
+
+  // 2️⃣ Datos del mensaje
+  const url = "https://mensajero-evolution-api.ykf6ye.easypanel.host/message/sendMedia/colinainstancia";
+  const apikey = "233D4AEC5769-4C3B-ADA5-0C77BB4C4F26";
+
+const numero = "+" + telefono; 
+const mensaje = `Estimado ${nombre}, su prenda está lista y puede recogerla cuando guste.`;
+
+  // 3️⃣ Armar cuerpo de la petición
+  const body = {
+    number: numero,
+    mediatype: "text",
+    caption: mensaje,
+    delay: 500
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': apikey
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (response.ok) {
+      document.getElementById('status').textContent = 'Mensaje enviado correctamente ✅';
+    } else {
+      const data = await response.json();
+      document.getElementById('status').textContent = "Error: " + (data.message || "No se pudo enviar.");
+    }
+  } catch (e) {
+    document.getElementById('status').textContent = 'Error al conectar con el servidor.';
+    console.error(e);
+  }
+
+  // 4️⃣ Cerrar ventana automáticamente luego de 2 segundos
+  setTimeout(() => window.close(), 2000);
+})();
+</script>
+</body>
+</html>
+
